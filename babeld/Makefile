@@ -6,12 +6,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=babeld
-PKG_VERSION:=1.11
-PKG_RELEASE:=$(AUTORELEASE)
+PKG_VERSION:=1.12.2
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://www.irif.fr/~jch/software/files/
-PKG_HASH:=99315aeaf2ea207f177c16855ffa34fc354af1b5988c070e0f2fca3a0d4d0fa5
+PKG_HASH:=1db22b6193070ea2450a1ab51196fd72f58a1329f780cb0388e2e4b2e7768cbb
 
 PKG_MAINTAINER:=Gabriel Kerneis <gabriel@kerneis.info>, \
 	Baptiste Jonglez <openwrt-pkg@bitsofnetworks.org>, \
@@ -35,7 +35,7 @@ define Package/babeld/description
   with fast convergence properties. It is based on the ideas in DSDV, AODV and
   Cisco's EIGRP, but is designed to work well not only in wired networks but
   also in wireless mesh networks, and has been extended with support for
-  overlay networks. Babel is in the process of becoming an IETF Standard.
+  overlay networks. Babel is an IETF standard protocol (RFC 8966).
 endef
 
 define Package/babeld/conffiles

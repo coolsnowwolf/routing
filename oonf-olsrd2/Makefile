@@ -1,32 +1,31 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=oonf-olsrd2
-PKG_VERSION:=v0.15.1
-PKG_REV:=bffb88b040659b237c4c91b6b42dbbb47431750e
-PKG_RELEASE:=$(PKG_REV)
+PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
-PKG_SOURCE_URL:=https://github.com/OLSR/OONF.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=$(PKG_REV)
-PKG_MIRROR_HASH:=2e38140e804e7fc0138d0893416c4f19b1ca43bd9de066e8b028bd0d59ac9255
+PKG_SOURCE_URL:=https://github.com/OLSR/OONF.git
+PKG_SOURCE_DATE:=2022-08-25
+PKG_SOURCE_VERSION:=1cec9b21086fb52ab4262c69aabd087e4d2d3a44
+PKG_MIRROR_HASH:=e9065af0a7103e84b9084683bb1db87c3361c1d97d8ad8a48a021b904b35ed56
 
 CMAKE_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
-SPACE:=
-SPACE+=
+# ref https://stackoverflow.com/a/10571900/3990041
+SPACE:= $(subst ,, )
 CMAKE_OPTIONAL_PLUGINS:= $(subst $(SPACE),;,$(strip \
         $(if $(filter y,$(CONFIG_OONF_NHDP_AUTOLL4)),auto_ll4,) \
         $(if $(filter y,$(CONFIG_OONF_OLSRV2_LAN_IMPORT)),lan_import,) \
         $(if $(filter y,$(CONFIG_OONF_OLSRV2_ROUTE_MODIFIER)),route_modifier,) \
-        $(if $(filter y,$(CONFIG_OONF_GENERIC_DLEP_ROUTER)),dlep_router,) \
+        $(if $(filter y,$(CONFIG_OONF_GENERIC_DLEP_ROUTER)),dlep,) \
         $(if $(filter y,$(CONFIG_OONF_GENERIC_REMOTECONTROL)),remotecontrol,) \
         $(if $(filter y,$(CONFIG_OONF_OLSRV2_MPR)),mpr,) \
         $(if $(filter y,$(CONFIG_OONF_GENERIC_HTTP)),http,) \
+        $(if $(filter y,$(CONFIG_OONF_OLSRV2_LAN)),olsrv2_lan,) \
+        $(if $(filter y,$(CONFIG_OONF_OLSRV2_OLD_LAN)),olsrv2_old_lan,) \
     ))
 
 BUILD_TYPE:= $(if $(filter y,$(CONFIG_DEBUG)),Debug,Release)
@@ -37,13 +36,14 @@ CMAKE_OPTIONS+=-D CMAKE_BUILD_TYPE:String=$(BUILD_TYPE) \
                -D OONF_NO_TESTING:Bool=true \
                -D UCI:Bool=true \
                -D OONF_APP_DEFAULT_CFG_HANDLER:String=uci \
-               -D OONF_STATIC_PLUGINS:String="class;clock;duplicate_set;layer2;packet_socket;rfc5444;socket;stream_socket;telnet;timer;viewer;os_clock;os_fd;os_interface;os_routing;os_system;nhdp;olsrv2;ff_dat_metric;neighbor_probing;nl80211_listener;link_config;layer2info;systeminfo;cfg_uciloader;cfg_compact;nhdpinfo;olsrv2info;netjsoninfo;${CMAKE_OPTIONAL_PLUGINS}" \
-               -D OONF_LIB_GIT:String=v$(PKG_VERSION)-archive \
-               -D OONF_VERSION:String=$(PKG_VERSION) \
+               -D OONF_STATIC_PLUGINS:String="class;callback;clock;duplicate_set;layer2;packet_socket;rfc5444;socket;stream_socket;telnet;timer;viewer;os_clock;os_fd;os_interface;os_routing;os_system;nhdp;olsrv2;ff_dat_metric;neighbor_probing;nl80211_listener;link_config;layer2info;systeminfo;cfg_uciloader;cfg_compact;nhdpinfo;olsrv2info;netjsoninfo;${CMAKE_OPTIONAL_PLUGINS}" \
+               -D OONF_LIB_GIT:String=$(PKG_SOURCE_VERSION) \
+               -D VERSION_SUB_TAG:String=$(PKG_SOURCE_DATE) \
                -D INSTALL_LIB_DIR:Path=lib/oonf \
                -D INSTALL_INCLUDE_DIR:Path=include/oonf \
                -D INSTALL_CMAKE_DIR:Path=lib/oonf \
-               -D CMAKE_PREFIX_PATH=$(STAGING_DIR)/usr
+               -D CMAKE_PREFIX_PATH=$(STAGING_DIR)/usr \
+               -D CMAKE_GENERATOR=Ninja
 
 define Package/oonf-git/template
 	SECTION:=net

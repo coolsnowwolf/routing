@@ -6,12 +6,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=opennds
-PKG_VERSION:=9.7.0
-PKG_RELEASE:=2
+PKG_VERSION:=9.10.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/opennds/opennds/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=3059911743edeec7b89c289d40382696273646a632e2e7cdcb43067d0396b347
+PKG_HASH:=0508a52ea6b2a18365ae071c623f923680bb926605f7b0678f14ea58bbfb2aba
 PKG_BUILD_DIR:=$(BUILD_DIR)/openNDS-$(PKG_VERSION)
 
 PKG_MAINTAINER:=Rob White <rob@blue-wave.net>
@@ -30,17 +30,14 @@ define Package/opennds
   DEPENDS:=+iptables-nft +kmod-ipt-conntrack +kmod-ipt-nat +libmicrohttpd-no-ssl
   TITLE:=Open public network gateway daemon
   URL:=https://github.com/opennds/opennds
-  CONFLICTS:=nodogsplash nodogsplash2
+  CONFLICTS:=nodogsplash
 endef
 
 define Package/opennds/description
-  openNDS is a Captive Portal solution that offers an instant way to provide restricted access to the Internet.
-  With little or no configuration, a dynamically generated and adaptive splash page sequence is automatically served.
-  Both client driven Captive Portal Detection (CPD) and gateway driven Captive Portal Identification (CPI - RFC 8910 and RFC 8908) are supported.
-  Internet access is granted by either a click to continue button, or after credential verification as a result of filling in a login form.
-  The package incorporates the FAS API allowing many flexible customisation options.
-  The creation of sophisticated third party authentication applications is fully supported.
-  Internet hosted https portals can be implemented with no security errors, to inspire maximum user confidence.
+  openNDS (open Network Demarcation Service) is a high performance, small footprint, Captive Portal.
+  It provides a border control gateway between a public local area network and the Internet.
+  It supports all scenarios ranging from small stand alone venues through to large mesh networks with multiple portal entry points.
+  Both the client driven Captive Portal Detection method (CPD) and gateway driven Captive Portal Identification method (CPI - RFC 8910 and RFC 8908) are supported.
   This version requires iptables-nft.
 endef
 
@@ -71,6 +68,7 @@ define Package/opennds/install
 	$(CP) $(PKG_BUILD_DIR)/forward_authentication_service/libs/unescape.sh $(1)/usr/lib/opennds/
 	$(CP) $(PKG_BUILD_DIR)/forward_authentication_service/libs/authmon.sh $(1)/usr/lib/opennds/
 	$(CP) $(PKG_BUILD_DIR)/forward_authentication_service/libs/dnsconfig.sh $(1)/usr/lib/opennds/
+	$(CP) $(PKG_BUILD_DIR)/forward_authentication_service/libs/download_resources.sh $(1)/usr/lib/opennds/
 	$(CP) $(PKG_BUILD_DIR)/forward_authentication_service/libs/post-request.php $(1)/usr/lib/opennds/
 	$(CP) $(PKG_BUILD_DIR)/forward_authentication_service/fas-aes/fas-aes.php $(1)/etc/opennds/
 	$(CP) $(PKG_BUILD_DIR)/forward_authentication_service/fas-hid/fas-hid.php $(1)/etc/opennds/
