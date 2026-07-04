@@ -58,7 +58,7 @@ define Package/hnet-full
   # Service discovery
   DEPENDS+=+ohybridproxy +zonestitcher
   # Distributed PCP support
-  DEPENDS+=+miniupnpd +minimalist-pcproxy
+  DEPENDS+=+PACKAGE_firewall4:miniupnpd-nftables +!PACKAGE_firewall4:miniupnpd-iptables +minimalist-pcproxy
 endef
 
 define Package/hnet-full-secure
@@ -72,7 +72,7 @@ define Package/hnet-full-secure
   # Service discovery
   DEPENDS+=+ohybridproxy +zonestitcher
   # Distributed PCP support
-  DEPENDS+=+miniupnpd +minimalist-pcproxy
+  DEPENDS+=+PACKAGE_firewall4:miniupnpd-nftables +!PACKAGE_firewall4:miniupnpd-iptables +minimalist-pcproxy
 endef
 
 define Package/hnet-full-l2tp
@@ -86,7 +86,7 @@ define Package/hnet-full-l2tp
   # Service discovery
   DEPENDS+=+ohybridproxy +zonestitcher
   # Distributed PCP support
-  DEPENDS+=+miniupnpd +minimalist-pcproxy
+  DEPENDS+=+PACKAGE_firewall4:miniupnpd-nftables +!PACKAGE_firewall4:miniupnpd-iptables +minimalist-pcproxy
 endef
 
 define Package/luci-app-hnet
