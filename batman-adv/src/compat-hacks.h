@@ -5,45 +5,60 @@
 #include <linux/version.h>	/* LINUX_VERSION_CODE */
 #include <linux/types.h>
 
-#if LINUX_VERSION_IS_LESS(6, 0, 0)
+#if LINUX_VERSION_IS_LESS(6, 15, 0)
+#include <linux/crc32c.h>
+#endif /* LINUX_VERSION_IS_LESS(6, 15, 0) */
 
-#define __vstring(item, fmt, ap) __dynamic_array(char, item, 256)
-#define __assign_vstr(dst, fmt, va) \
-	WARN_ON_ONCE(vsnprintf(__get_dynamic_array(dst), 256, fmt, *va) >= 256)
+#if LINUX_VERSION_IS_LESS(6, 16, 0)
 
-#endif /* LINUX_VERSION_IS_LESS(6, 0, 0) */
+#define timer_container_of(var, callback_timer, timer_fieldname)	\
+	from_timer(var, callback_timer, timer_fieldname)
 
-#if LINUX_VERSION_IS_LESS(6, 2, 0)
+#endif /* LINUX_VERSION_IS_LESS(6, 16, 0) */
 
-#include <linux/random.h>
+#if LINUX_VERSION_IS_LESS(6, 16, 0) || !defined(CONFIG_NET_CRC32C)
 
-#define genl_split_ops genl_ops
+#include <linux/skbuff.h>
+#include <linux/crc32.h>
 
-static inline u32 batadv_get_random_u32_below(u32 ep_ro)
+static inline u32 batadv_skb_crc32c(struct sk_buff *skb, int offset,
+				    int len, u32 crc)
 {
-	return prandom_u32_max(ep_ro);
+	unsigned int to = offset + len;
+	unsigned int consumed = 0;
+	struct skb_seq_state st;
+	unsigned int l;
+	const u8 *data;
+
+	if (len <= 0)
+	       return crc;
+
+	skb_prepare_seq_read(skb, offset, to, &st);
+	while ((l = skb_seq_read(consumed, &data, &st)) != 0) {
+		crc = crc32c(crc, data, l);
+		consumed += l;
+	}
+
+	return crc;
 }
 
-#define get_random_u32_below batadv_get_random_u32_below
+#define skb_crc32c batadv_skb_crc32c
 
-#endif /* LINUX_VERSION_IS_LESS(6, 2, 0) */
+#endif /* LINUX_VERSION_IS_LESS(6, 16, 0) || !defined(CONFIG_NET_CRC32C) */
 
-#if LINUX_VERSION_IS_LESS(6, 4, 0) && \
-    !(LINUX_VERSION_IS_GEQ(5, 10, 205) && LINUX_VERSION_IS_LESS(5, 11, 0)) && \
-    !(LINUX_VERSION_IS_GEQ(5, 15, 144) && LINUX_VERSION_IS_LESS(5, 16, 0)) && \
-    !(LINUX_VERSION_IS_GEQ(6, 1, 69) && LINUX_VERSION_IS_LESS(6, 2, 0))
+#if LINUX_VERSION_IS_LESS(7, 0, 0) && \
+    !(LINUX_VERSION_IS_GEQ(6, 18, 33) && LINUX_VERSION_IS_LESS(6, 19, 0))
 
-#include <linux/if_vlan.h>
+#define kzalloc_obj(P, GFP) \
+	kzalloc(sizeof(P), GFP)
 
-/* Prefer this version in TX path, instead of
- * skb_reset_mac_header() + vlan_eth_hdr()
- */
-static inline struct vlan_ethhdr *skb_vlan_eth_hdr(const struct sk_buff *skb)
-{
-	return (struct vlan_ethhdr *)skb->data;
-}
+#define kmalloc_obj(P, GFP) \
+	kmalloc(sizeof(P), GFP)
 
-#endif /* LINUX_VERSION_IS_LESS(6, 4, 0) */
+#define kmalloc_objs(P, COUNT, GFP) \
+	kmalloc_array((COUNT), sizeof(P), GFP)
+
+#endif /* < KERNEL_VERSION(7, 0, 0) */
 
 /* <DECLARE_EWMA> */
 
